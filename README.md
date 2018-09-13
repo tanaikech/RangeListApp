@@ -51,10 +51,11 @@ Although these might be able to be used by the future update, I created this lib
 | getValues() | Object | Retrieve values from each cell using range list. This works like [``getValues()`` of Class Range](https://developers.google.com/apps-script/reference/spreadsheet/range#getValues()). |
 | getDisplayValues() | Object | Retrieve display values from each cell using range list. This works like [``getDisplayValues()`` of Class Range](https://developers.google.com/apps-script/reference/spreadsheet/range#getDisplayValues()). |
 | getFormulas() | Object | Retrieve formulas from each cell using range list. This works like [``getFormulas()`` of Class Range](https://developers.google.com/apps-script/reference/spreadsheet/range#getformulas). |
-| setValues() | Object | Put values to cells of range list. This works like [``setValues()`` of Class Range](https://developers.google.com/apps-script/reference/spreadsheet/range#setvaluesvalues). Inputted the range list is returned. |
-| replaceValues() | Object | Replace values of cells of range list using regex. Inputted the range list is returned. |
-| replaceFormulas() | Object | Replace formulas of cells of range list using regex. Inputted the range list is returned. |
-| setCheckBox() | Object | Put checkbox to cells of range list. Inputted the range list is returned. |
+| setValues(values) | Object | Put values to cells of range list. This works like [``setValues()`` of Class Range](https://developers.google.com/apps-script/reference/spreadsheet/range#setvaluesvalues). Inputted the range list is returned. |
+| replaceValues(regex, value) | Object | Replace values of cells of range list using regex. Inputted the range list is returned. |
+| replaceFormulas(regex, value) | Object | Replace formulas of cells of range list using regex. Inputted the range list is returned. |
+| setCheckBox(values) | Object | Put checkbox to cells of range list. Inputted the range list is returned. |
+| [expandA1Notations(rangeList)](#expandA1Notations) | Object | Expand a1Notation. For example, ``A1:C2`` is expanded to ``"A1","B1","C1","A2","B2","C2"``. |
 
 I would like to add more methods in the future.
 
@@ -169,6 +170,27 @@ var r = RangeListApp.getSpreadsheet(spreadsheet).getRangeList(rangeList).setChec
 ![](images/sample_fig8.png)
 
 
+<a name="expandA1Notations"></a>
+## 5. expandA1Notations()
+~~~javascript
+var rangeList = ["A1:E3", "B10:W13", "EZ5:FA8", "AAA1:AAB3"];
+var r = RangeListApp.expandA1Notations(rangeList);
+~~~
+
+- This is one of methods of Class RangeListApp.
+- Methods of "columnToLetter" and "letterToColumn" are from [Stackoverflow](https://stackoverflow.com/a/21231012/7108653). When I saw the thread, I could notice about this method. Thank you so much.
+
+#### Result
+~~~
+[
+  ["A1","B1","C1","D1","E1","A2","B2","C2","D2","E2","A3","B3","C3","D3","E3"],
+  ["B10","C10","D10","E10","F10","G10","H10","I10","J10","K10","L10","M10","N10","O10","P10","Q10","R10","S10","T10","U10","V10","W10","B11","C11","D11","E11","F11","G11","H11","I11","J11","K11","L11","M11","N11","O11","P11","Q11","R11","S11","T11","U11","V11","W11","B12","C12","D12","E12","F12","G12","H12","I12","J12","K12","L12","M12","N12","O12","P12","Q12","R12","S12","T12","U12","V12","W12","B13","C13","D13","E13","F13","G13","H13","I13","J13","K13","L13","M13","N13","O13","P13","Q13","R13","S13","T13","U13","V13","W13"],
+  ["EZ5","FA5","EZ6","FA6","EZ7","FA7","EZ8","FA8"],
+  ["AAA1","AAB1","AAA2","AAB2","AAA3","AAB3"]
+]
+~~~
+
+
 -----
 
 <a name="Licence"></a>
@@ -187,5 +209,8 @@ If you have any questions and commissions for me, feel free to tell me.
 
     1. Initial release.
 
+* v1.0.1 (September 13, 2018)
+
+    1. [New method of "expandA1Notations"](#expandA1Notations) was added. This method can expand the a1Notations. For example, ``A1:C2`` is expanded to ``"A1","B1","C1","A2","B2","C2"``.
 
 [TOP](#TOP)

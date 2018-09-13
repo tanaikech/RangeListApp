@@ -86,38 +86,51 @@ function getValues() {
     return rl.getValues();
 }
 
+/**
+ * expandA1Notations method for RangeListApp.<br>
+ * @param {Object} rangeList Range list created by 1 dimensional array.
+ * @return {Object} Return Object
+ */
+function expandA1Notations(rangeList) {
+    var rl = new RangeListApp(null, null, "expandA1Notations");
+    return rl.expandA1Notations(rangeList);
+}
+
 // SpreadsheetApp.getActiveSpreadsheet(); // For scope
+// Methods of "columnToLetter" and "letterToColumn" are from "https://stackoverflow.com/a/21231012/7108653"
 ;
 (function(r) {
   var RangeListApp;
   RangeListApp = (function() {
-    var addQuery, createReqForSetChkeckBox, createReqForSetValues, createReqRepeatCellChkBox, createReqRepeatCellUpdate, createReqSingleCellChkBox, createReqSingleCellUpdate, fetch, getDataValues, getidentification, parseRange, replaceValues, setDataValues, setReplacedValues;
+    var addQuery, columnToLetter, createReqForSetChkeckBox, createReqForSetValues, createReqRepeatCellChkBox, createReqRepeatCellUpdate, createReqSingleCellChkBox, createReqSingleCellUpdate, doExpandA1Notations, fetch, getDataValues, getidentification, letterToColumn, parseRange, replaceValues, setDataValues, setReplacedValues;
 
     RangeListApp.name = "RangeListApp";
 
-    function RangeListApp(rangeList_, spreadsheet_) {
-      if (!rangeList_ || rangeList_.length === 0) {
-        throw new Error("rangeList was not found.");
+    function RangeListApp(rangeList_, spreadsheet_, func_) {
+      if (func_ == null) {
+        if (!rangeList_ || rangeList_.length === 0) {
+          throw new Error("rangeList was not found.");
+        }
+        if (!Array.isArray(rangeList_)) {
+          throw new Error("rangeList was not an array.");
+        }
+        if (!spreadsheet_) {
+          throw new Error("spreadsheet was not found.");
+        }
+        this.rangeList = rangeList_;
+        this.url = "https://sheets.googleapis.com/v4/spreadsheets/";
+        this.headers = {
+          Authorization: 'Bearer ' + ScriptApp.getOAuthToken()
+        };
+        if (!spreadsheet_ || spreadsheet_ === void 0) {
+          this.spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+        } else {
+          this.spreadsheet = spreadsheet_;
+        }
+        this.sheet = SpreadsheetApp.getActiveSheet();
+        this.spreadsheetId = this.spreadsheet.getId();
+        this.sheetId = this.sheet.getSheetId();
       }
-      if (!Array.isArray(rangeList_)) {
-        throw new Error("rangeList was not an array.");
-      }
-      if (!spreadsheet_) {
-        throw new Error("spreadsheet was not found.");
-      }
-      this.rangeList = rangeList_;
-      this.url = "https://sheets.googleapis.com/v4/spreadsheets/";
-      this.headers = {
-        Authorization: 'Bearer ' + ScriptApp.getOAuthToken()
-      };
-      if (!spreadsheet_ || spreadsheet_ === void 0) {
-        this.spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-      } else {
-        this.spreadsheet = spreadsheet_;
-      }
-      this.sheet = SpreadsheetApp.getActiveSheet();
-      this.spreadsheetId = this.spreadsheet.getId();
-      this.sheetId = this.sheet.getSheetId();
     }
 
     RangeListApp.prototype.setValues = function(values) {
@@ -150,8 +163,12 @@ function getValues() {
       return getDataValues.call(this, "FORMATTED_VALUE");
     };
 
-    RangeListApp.prototype.getFormulas = function(srcv, regex, value) {
+    RangeListApp.prototype.getFormulas = function() {
       return getDataValues.call(this, "FORMULA");
+    };
+
+    RangeListApp.prototype.expandA1Notations = function(rangeList) {
+      return doExpandA1Notations.call(this, rangeList);
     };
 
     replaceValues = function(src, regex, value) {
@@ -549,6 +566,57 @@ function getValues() {
         return;
       }
       return JSON.parse(res[0].getContentText());
+    };
+
+    columnToLetter = function(column) {
+      var letter, temp;
+      temp = 0;
+      letter = "";
+      while (column > 0) {
+        temp = (column - 1) % 26;
+        letter = String.fromCharCode(temp + 65) + letter;
+        column = (column - temp - 1) / 26;
+      }
+      return letter;
+    };
+
+    letterToColumn = function(letter) {
+      var column, i, k, length, ref;
+      column = 0;
+      length = letter.length;
+      for (i = k = 0, ref = length; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+        column += (letter.charCodeAt(i) - 64) * Math.pow(26, length - i - 1);
+      }
+      return column;
+    };
+
+    doExpandA1Notations = function(rangeList) {
+      var reg;
+      if (!Array.isArray(rangeList)) {
+        throw new Error("Please give rangeList as one dimensional array.");
+      }
+      reg = new RegExp("([A-Z]+)([0-9]+)");
+      return rangeList.map(function(e) {
+        var a1, i, j, k, l, obj, ref, ref1, ref2, ref3, rr, temp;
+        a1 = e.split("!");
+        r = a1.length > 1 ? a1[1] : a1[0];
+        rr = r.split(":").map(function(f) {
+          return f.toUpperCase().match(reg);
+        });
+        obj = {
+          startRowIndex: Number(rr[0][2]),
+          endRowIndex: rr.length === 1 ? Number(rr[0][2]) + 1 : Number(rr[1][2]) + 1,
+          startColumnIndex: letterToColumn.call(this, rr[0][1]),
+          endColumnIndex: rr.length === 1 ? letterToColumn.call(this, rr[0][1]) + 1 : letterToColumn.call(this, rr[1][1]) + 1
+        };
+        temp = [];
+        for (i = k = ref = obj.startRowIndex, ref1 = obj.endRowIndex; ref <= ref1 ? k < ref1 : k > ref1; i = ref <= ref1 ? ++k : --k) {
+          for (j = l = ref2 = obj.startColumnIndex, ref3 = obj.endColumnIndex; ref2 <= ref3 ? l < ref3 : l > ref3; j = ref2 <= ref3 ? ++l : --l) {
+            temp.push(columnToLetter.call(this, j) + i);
+          }
+        }
+        return temp;
+      });
     };
 
     return RangeListApp;
