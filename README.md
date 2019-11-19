@@ -31,6 +31,13 @@ Although these might be able to be used by the future update, I created this lib
 # How to install
 1. [Install RangeListApp library](https://developers.google.com/apps-script/guides/libraries).
     - Library's project key is **``1L44xvi-AsdwbYgqeb63e2i-7PpC01Mt-1fgNO2HpTTvAHPMU1HteAIsY``**.
+1. [Enable Sheets API at Advanced Google services](https://developers.google.com/apps-script/guides/services/advanced#enabling_advanced_services).
+
+<u>Installing is done! You can use RangeListApp.</u>
+
+> At the first run of the script using library, the authorization screen is displayed. Please authorize it. By this, you can use Sheets API. This authorization is required to do for only the first run.
+
+### If you are using the GAS project created before April 8, 2019, please enable Sheets API at API console as follows.
 1. Enable Sheets API at API console
     - On script editor
     - Resources -> Cloud Platform project
@@ -40,10 +47,6 @@ Although these might be able to be used by the future update, I created this lib
     - At Search for APIs & services, input **Sheets API**. And click Sheets API.
     - Click Enable button.
         - If it has already been enabled, please don't turn off.
-
-<u>Installing is done! You can use RangeListApp.</u>
-
-> At the first run of the script using library, the authorization screen is displayed. Please authorize it. By this, you can use Sheets API. This authorization is required to do for only the first run.
 
 # Methods
 | Methods | Return | Descriptions |
